@@ -1,9 +1,15 @@
-"scripts": {
-  "start": "node server.js"
-}
-
 {
+  "name": "webinor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
   "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^2.2.2",
@@ -14,15 +20,5 @@
     "mongodb": "^6.0.0",
     "nodemailer": "^8.0.1",
     "razorpay": "^2.9.0"
-  },
-  "name": "webinor",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  }
 }
