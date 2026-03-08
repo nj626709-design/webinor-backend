@@ -1,50 +1,98 @@
 const express = require("express");
-const nodemailer = require("nodemailer");
 const cors = require("cors");
+const nodemailer = require("nodemailer");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static("public"));
+/* ================= CORS ================= */
 
-// Email transporter
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
+app.use(cors({
+  origin: "*"
+}));
+
+app.use(express.json());
+
+/* ================= DATABASE ================= */
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("MongoDB Connected");
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
+};
+
+connectDB();
+
+/* ================= CONTACT MODEL ================= */
+
+const Contact = mongoose.model("Contact", {
+  name: String,
+  email: String,
+  message: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+/* ================= CONTACT API ================= */
+
+app.post("/contact", async (req, res) => {
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+
+    /* Save to Database */
+    const newMessage = new Contact({
+      name,
+      email,
+      message
+    });
+
+    await newMessage.save();
+
+    /* Send Email */
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      replyTo: email,
+      to: process.env.EMAIL_USER,
+      subject: `Contact from ${name}`,
+      text: message
+    });
+
+    res.json({ message: "Message sent and saved successfully!" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to send message." });
+  }
 });
 
-// Contact API
-app.post("/contact", async (req, res) => {
-    const { name, email, message } = req.body;
+/* ================= SERVER ================= */
 
-    try {
-        await transporter.sendMail({
-            from: `"Webinor Website" <${process.env.EMAIL_USER}>`,
-            to: process.env.EMAIL_USER,
-            subject: `New Client Inquiry from ${name}`,
-            html: `
-                <h3>New Inquiry Received</h3>
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Message:</strong><br/> ${message}</p>
-            `
-        });
+const PORT = process.env.PORT || 3000;
 
-        res.status(200).json({ success: true, message: "Message sent successfully!" });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: "Something went wrong." });
-    }
+app.get("/", (req, res) => {
+  res.send("Webinor Backend Running");
 });
-
-const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
