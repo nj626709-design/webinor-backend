@@ -1,29 +1,38 @@
-const sections = document.querySelectorAll(
-  ".about-section, .services-section, .portfolio-section"
-);
+const form = document.querySelector("#contact-form");
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("show");
-    }
-  });
-}, {
-  threshold: 0.2
-});
+form.addEventListener("submit", async function(e) {
 
-sections.forEach(section => {
-  observer.observe(section);
-});
+  e.preventDefault();
 
-fetch("https://webinor-backend-production.up.railway.app/contact", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    name: name,
-    email: email,
-    message: message
-  })
+  const name = document.querySelector("#name").value;
+  const email = document.querySelector("#email").value;
+  const message = document.querySelector("#message").value;
+
+  try {
+
+    const response = await fetch("https://webinor-backend-production.up.railway.app/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        message: message
+      })
+    });
+
+    const data = await response.json();
+
+    alert(data.message);
+
+    form.reset();
+
+  } catch (error) {
+
+    alert("Failed to send message");
+    console.error(error);
+
+  }
+
 });
