@@ -43,6 +43,11 @@ const Contact = mongoose.model("Contact", {
 /* ================= CONTACT API ================= */
 
 app.post("/contact", async (req, res) => {
+
+  if (!req.body) {
+    return res.status(400).json({ message: "No data received" });
+  }
+
   const { name, email, message } = req.body;
 
   if (!name || !email || !message) {
@@ -51,7 +56,6 @@ app.post("/contact", async (req, res) => {
 
   try {
 
-    /* Save to Database */
     const newMessage = new Contact({
       name,
       email,
@@ -60,16 +64,15 @@ app.post("/contact", async (req, res) => {
 
     await newMessage.save();
 
-    /* Send Email */
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -82,7 +85,7 @@ const transporter = nodemailer.createTransport({
     res.json({ message: "Message sent and saved successfully!" });
 
   } catch (err) {
-    console.error(err);
+    console.error("CONTACT ERROR:", err);
     res.status(500).json({ message: "Failed to send message." });
   }
 });
