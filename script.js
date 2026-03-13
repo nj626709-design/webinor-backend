@@ -1,7 +1,6 @@
 const form = document.querySelector("#contact-form");
 
 form.addEventListener("submit", async function(e) {
-
   e.preventDefault();
 
   const name = document.querySelector("#name").value;
@@ -16,23 +15,21 @@ form.addEventListener("submit", async function(e) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        name: name,
-        email: email,
-        message: message
+        name,
+        email,
+        message
       })
     });
 
-    const data = await response.json();
-
-    alert(data.message);
-
-    form.reset();
+    if (response.ok) {
+      alert("✅ Message sent successfully!");
+      form.reset();
+    } else {
+      alert("❌ Failed to send message");
+    }
 
   } catch (error) {
-
-    alert("Failed to send message");
-    console.error(error);
-
+    alert("❌ Server error. Try again later.");
   }
 
 });
