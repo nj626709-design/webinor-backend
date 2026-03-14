@@ -1,35 +1,43 @@
-const form = document.querySelector("#contact-form");
+document.addEventListener("DOMContentLoaded", function () {
 
-form.addEventListener("submit", async function(e) {
-  e.preventDefault();
+  const form = document.querySelector("#contact-form");
 
-  const name = document.querySelector("#name").value;
-  const email = document.querySelector("#email").value;
-  const message = document.querySelector("#message").value;
+  if (!form) return;
 
-  try {
+  form.addEventListener("submit", async function (e) {
 
-    const response = await fetch("https://webinor-backend-production.up.railway.app/contact", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        message
-      })
-    });
+    e.preventDefault();
 
-    if (response.ok) {
-      alert("✅ Message sent successfully!");
-      form.reset();
-    } else {
-      alert("❌ Failed to send message");
+    const name = document.querySelector("#name").value;
+    const email = document.querySelector("#email").value;
+    const message = document.querySelector("#message").value;
+
+    try {
+
+      const response = await fetch("https://webinor-backend-production.up.railway.app/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          message
+        })
+      });
+
+      if (response.ok) {
+        alert("✅ Message sent successfully!");
+        form.reset();
+      } else {
+        alert("❌ Failed to send message");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("❌ Server error. Try again later.");
     }
 
-  } catch (error) {
-    alert("❌ Server error. Try again later.");
-  }
+  });
 
 });
