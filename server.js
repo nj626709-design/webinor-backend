@@ -1,8 +1,9 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
-require("dotenv").config();
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 
 const connectDB = async () => {
   try {
+    console.log("MONGO:", process.env.MONGO_URI);
     await mongoose.connect(process.env.MONGO_URI);
     console.log("MongoDB Connected");
   } catch (error) {
